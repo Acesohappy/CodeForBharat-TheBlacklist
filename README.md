@@ -67,7 +67,7 @@ EmpowerHer provides an end-to-end ecosystem for travel safety using:
 
 ---
 
-## 🔄 MVP Features (Live : https://gdg-solution-challenge-taupe.vercel.app/)
+## 🔄 MVP Features 
 
 - [x] SOS button with alert system  
 - [x] Route planner with mock AI-based risk prediction  
