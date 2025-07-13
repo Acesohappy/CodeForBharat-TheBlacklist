@@ -20,52 +20,81 @@ const CrimeHeatmap = () => {
   const [radius, setRadius] = useState(20);
   const [opacity, setOpacity] = useState(0.7);
   const [statusMessage, setStatusMessage] = useState('Loading crime data...');
+  const [isLoading, setIsLoading] = useState(false);
   const mapRef = useRef(null);
+  const scriptRef = useRef(null);
 
   // Load Google Maps script
   useEffect(() => {
+    // Check if Google Maps is already loaded
+    if (window.google && window.google.maps) {
+      initMap();
+      return;
+    }
+
+    // Prevent multiple script loads
+    if (scriptRef.current) {
+      return;
+    }
+
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDGVg62dsidCJ9p5UsbjiNOu2pharMyGRE&libraries=visualization`;
     script.async = true;
     script.defer = true;
     script.onload = initMap;
+    script.onerror = () => {
+      setStatusMessage('Error loading Google Maps');
+    };
+    
+    scriptRef.current = script;
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      // Clean up on unmount
+      if (scriptRef.current && document.head.contains(scriptRef.current)) {
+        document.head.removeChild(scriptRef.current);
+      }
     };
   }, []);
 
   // Initialize map
   const initMap = () => {
-    if (window.google && window.google.maps) {
-      const newMap = new window.google.maps.Map(mapRef.current, {
-        zoom: 12,
-        center: { lat: 28.5956, lng: 77.1673 },
-        mapTypeId: window.google.maps.MapTypeId.ROADMAP,
-        mapTypeControl: true,
-        streetViewControl: false,
-        fullscreenControl: true,
-      });
-      setMap(newMap);
-      loadCrimeData(newMap);
+    if (window.google && window.google.maps && mapRef.current) {
+      try {
+        const newMap = new window.google.maps.Map(mapRef.current, {
+          zoom: 12,
+          center: { lat: 28.5956, lng: 77.1673 },
+          mapTypeId: window.google.maps.MapTypeId.ROADMAP,
+          mapTypeControl: true,
+          streetViewControl: false,
+          fullscreenControl: true,
+        });
+        setMap(newMap);
+        loadCrimeData(newMap);
+      } catch (error) {
+        console.error('Error initializing map:', error);
+        setStatusMessage('Error initializing map');
+      }
     }
   };
 
   // Load crime data from Firestore
   const loadCrimeData = async (mapInstance) => {
+    if (!mapInstance) return;
+
     try {
+      setIsLoading(true);
       setStatusMessage('Loading crime data...');
       setHeatmapData([]);
 
       const crimeCollection = collection(db, 'crime');
       let q = crimeCollection;
 
-      // Time filtering logic (commented out as per original code)
+      // Time filtering logic (enable when timestamp field is available)
       if (timeFilterHours > 0) {
         const timeThreshold = new Date();
         timeThreshold.setHours(timeThreshold.getHours() - timeFilterHours);
-        // Uncomment when timestamp is available
+        // Uncomment when timestamp is available in your Firestore documents
         // q = query(crimeCollection, where('timestamp', '>=', timeThreshold));
       }
 
@@ -77,20 +106,32 @@ const CrimeHeatmap = () => {
         return;
       }
 
-      const locations = querySnapshot.docs
-        .map(doc => {
-          const data = doc.data();
-          if (data.latitude && data.longitude) {
-            return data.severity 
-              ? { 
-                  location: new window.google.maps.LatLng(data.latitude, data.longitude), 
-                  weight: parseFloat(data.severity) 
-                }
-              : new window.google.maps.LatLng(data.latitude, data.longitude);
+      const locations = [];
+      
+      querySnapshot.docs.forEach(doc => {
+        const data = doc.data();
+        
+        // Validate latitude and longitude
+        if (data.latitude && data.longitude && 
+            typeof data.latitude === 'number' && 
+            typeof data.longitude === 'number' &&
+            data.latitude >= -90 && data.latitude <= 90 &&
+            data.longitude >= -180 && data.longitude <= 180) {
+          
+          if (data.severity && typeof data.severity === 'number') {
+            // Weighted point with severity
+            locations.push({
+              location: new window.google.maps.LatLng(data.latitude, data.longitude),
+              weight: Math.max(0.1, parseFloat(data.severity)) // Ensure positive weight
+            });
+          } else {
+            // Simple point without weight
+            locations.push(new window.google.maps.LatLng(data.latitude, data.longitude));
           }
-          return null;
-        })
-        .filter(location => location !== null);
+        } else {
+          console.warn('Invalid coordinates in document:', doc.id, data);
+        }
+      });
 
       setHeatmapData(locations);
       createHeatmap(mapInstance, locations);
@@ -102,27 +143,51 @@ const CrimeHeatmap = () => {
       );
     } catch (error) {
       console.error('Error getting crime data:', error);
-      setStatusMessage('Error loading crime data');
+      setStatusMessage(`Error loading crime data: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Create heatmap layer
   const createHeatmap = (mapInstance, data) => {
-    // Remove existing heatmap
-    if (heatmap) {
-      heatmap.setMap(null);
+    if (!mapInstance || !window.google?.maps?.visualization) {
+      console.error('Google Maps visualization library not loaded');
+      return;
     }
 
-    if (window.google?.maps?.visualization) {
+    try {
+      // Remove existing heatmap
+      if (heatmap) {
+        heatmap.setMap(null);
+      }
+
+      if (data.length === 0) {
+        setHeatmap(null);
+        return;
+      }
+
       const newHeatmap = new window.google.maps.visualization.HeatmapLayer({
         data: data,
         map: mapInstance,
         radius: radius,
         opacity: opacity,
       });
+      
       setHeatmap(newHeatmap);
+    } catch (error) {
+      console.error('Error creating heatmap:', error);
+      setStatusMessage('Error creating heatmap visualization');
     }
   };
+
+  // Update heatmap properties when controls change
+  useEffect(() => {
+    if (heatmap) {
+      heatmap.set('radius', radius);
+      heatmap.set('opacity', opacity);
+    }
+  }, [radius, opacity, heatmap]);
 
   // Handle filter application
   const applyFilters = () => {
@@ -167,6 +232,7 @@ const CrimeHeatmap = () => {
             value={timeFilterHours} 
             onChange={(e) => setTimeFilterHours(parseInt(e.target.value))}
             style={{ width: '100%', padding: '5px', marginBottom: '10px' }}
+            disabled={isLoading}
           >
             <option value="6">Last 6 hours</option>
             <option value="12">Last 12 hours</option>
@@ -189,6 +255,7 @@ const CrimeHeatmap = () => {
             value={radius}
             onChange={(e) => setRadius(parseInt(e.target.value))}
             style={{ width: '100%' }}
+            disabled={isLoading}
           />
         </div>
         
@@ -204,34 +271,37 @@ const CrimeHeatmap = () => {
             value={opacity}
             onChange={(e) => setOpacity(parseFloat(e.target.value))}
             style={{ width: '100%' }}
+            disabled={isLoading}
           />
         </div>
         
         <button 
           onClick={applyFilters}
+          disabled={isLoading || !map}
           style={{
-            backgroundColor: '#4285f4',
+            backgroundColor: isLoading || !map ? '#ccc' : '#4285f4',
             color: 'white',
             border: 'none',
             padding: '8px 16px',
             borderRadius: '4px',
-            cursor: 'pointer',
+            cursor: isLoading || !map ? 'not-allowed' : 'pointer',
             fontSize: '14px',
             marginTop: '10px'
           }}
         >
-          Apply Filters
+          {isLoading ? 'Loading...' : 'Apply Filters'}
         </button>
         
         <button 
           onClick={() => loadCrimeData(map)}
+          disabled={isLoading || !map}
           style={{
-            backgroundColor: '#4285f4',
+            backgroundColor: isLoading || !map ? '#ccc' : '#4285f4',
             color: 'white',
             border: 'none',
             padding: '8px 16px',
             borderRadius: '4px',
-            cursor: 'pointer',
+            cursor: isLoading || !map ? 'not-allowed' : 'pointer',
             fontSize: '14px',
             marginTop: '10px',
             marginLeft: '10px'
