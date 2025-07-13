@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -18,7 +19,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getAnalytics(app);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
 
 const CrimeHeatmap = () => {
   const [map, setMap] = useState(null);
