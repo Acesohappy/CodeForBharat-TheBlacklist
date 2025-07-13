@@ -4,8 +4,8 @@ import { getFirestore, collection, getDocs, query, where } from 'firebase/firest
 
 // Firebase configuration (Note: In a real app, move this to environment variables)
 const firebaseConfig = {
-  apiKey: "AIzaSyAomjSB1dyXeQztq7hKKK0zIWt1XF1CKWI",
-  projectId: "empowerher-285ec",
+  apiKey: "AIzaSyDPxRN4vWKgNU7aHQoH0vczlzBtlJ5crTs",
+  projectId: "crimeheatmap2",
 };
 
 // Initialize Firebase
