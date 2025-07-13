@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
-
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 // Firebase configuration (Note: In a real app, move this to environment variables)
 const firebaseConfig = {
-  apiKey: "AIzaSyAomjSB1dyXeQztq7hKKK0zIWt1XF1CKWI",
-  projectId: "empowerher-285ec",
+  apiKey: "AIzaSyDPxRN4vWKgNU7aHQoH0vczlzBtlJ5crTs",
+  authDomain: "crimeheatmap2.firebaseapp.com",
+  projectId: "crimeheatmap2",
+  storageBucket: "crimeheatmap2.firebasestorage.app",
+  messagingSenderId: "93334481972",
+  appId: "1:93334481972:web:a84f66ff41b58de7b6ee61",
+  measurementId: "G-RFX7DWL5M9"
 };
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const analytics = getAnalytics(app);
 
 const CrimeHeatmap = () => {
   const [map, setMap] = useState(null);
