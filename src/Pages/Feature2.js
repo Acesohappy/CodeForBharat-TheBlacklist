@@ -1,16 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Firebase configuration (Note: In a real app, move this to environment variables)
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDk1mwY21RwPR4jd1_MdqOeqHtc56mjhhk",
+  authDomain: "heatmap-6e1be.firebaseapp.com",
   projectId: "heatmap-6e1be",
+  storageBucket: "heatmap-6e1be.firebasestorage.app",
+  messagingSenderId: "227168829867",
+  appId: "1:227168829867:web:2dc734cc1f8443937fd2ee",
+  measurementId: "G-NYJRGTYM6J"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = getAnalytics(app);
 
 const CrimeHeatmap = () => {
   const [map, setMap] = useState(null);
