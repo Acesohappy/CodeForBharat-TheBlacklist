@@ -1,0 +1,107 @@
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.logo-container:hover {
+    background-color: var(--gray-50);
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-fuchsia) 0%, var(--accent-grey) 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-weight: 700;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo-icon::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.logo-container:hover .logo-icon {
+    transform: rotate(5deg) scale(1.05);
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.logo-container:hover .logo-icon::after {
+    opacity: 1;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.logo-brand {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent-grey);
+    letter-spacing: -0.5px;
+    transition: color 0.3s ease;
+}
+
+.logo-brand-accent {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-fuchsia);
+    letter-spacing: -0.5px;
+    transition: color 0.3s ease;
+}
+
+.logo-container:hover .logo-brand {
+    color: var(--accent-grey-dark);
+}
+
+.logo-container:hover .logo-brand-accent {
+    color: var(--primary-fuchsia-dark);
+}
+
+@media (max-width: 768px) {
+    .logo-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+    }
+
+    .logo-brand,
+    .logo-brand-accent {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
+    .logo-brand,
+    .logo-brand-accent {
+        font-size: 1.1rem;
+    }
+} 

@@ -1,0 +1,73 @@
+{
+    "cities": {
+      "Chennai": {
+        "coordinates": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "crimeRate": "High",
+        "policeStations": 15,
+        "trafficDensity": "Very High",
+        "emergencyResponseTime": "10-15 mins"
+      },
+      "Coimbatore": {
+        "coordinates": {
+          "lat": 11.0168,
+          "lng": 77.0243
+        },
+        "crimeRate": "Medium",
+        "policeStations": 10,
+        "trafficDensity": "Medium",
+        "emergencyResponseTime": "15-20 mins"
+      },
+      "Madurai": {
+        "coordinates": {
+          "lat": 9.9252,
+          "lng": 78.1198
+        },
+        "crimeRate": "Low",
+        "policeStations": 8,
+        "trafficDensity": "Low",
+        "emergencyResponseTime": "20-25 mins"
+      },
+      "Trichy": {
+        "coordinates": {
+          "lat": 10.7870,
+          "lng": 78.6569
+        },
+        "crimeRate": "Medium",
+        "policeStations": 9,
+        "trafficDensity": "Medium",
+        "emergencyResponseTime": "15-20 mins"
+      },
+      "Salem": {
+        "coordinates": {
+          "lat": 11.6643,
+          "lng": 77.7171
+        },
+        "crimeRate": "Low",
+        "policeStations": 7,
+        "trafficDensity": "Low",
+        "emergencyResponseTime": "25-30 mins"
+      }
+    },
+    "routes": {
+      "Chennai-Coimbatore": {
+        "distance": "361 km",
+        "segments": [
+          {
+            "name": "National Highway 44",
+            "safetyScore": 85,
+            "risks": [
+              "Night-time robbery hotspot",
+              "Occasional truck traffic"
+            ],
+            "emergencyPoints": [
+              "Police Checkpost at Km 50",
+              "Highway Patrol Station"
+            ]
+          }
+        ]
+      }
+    }
+  }
